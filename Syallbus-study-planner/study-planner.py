@@ -1,5 +1,6 @@
 import fitz  
-
+from datetime import datetime
+from google import genai
 
 def read_pdf(path):
     
@@ -16,7 +17,38 @@ def read_pdf(path):
     doc.close()
     return pdf_content
 
+def days_until(date_string):
+    exam_date = datetime.strptime(date_string, "%Y-%m-%d")
+    date_today = datetime.now()
 
-text = read_pdf("example.pdf")
-print(text)
-print(len(text))
+    days_left = exam_date - date_today
+
+    return days_left.days
+
+def build_prompt(pdf_text, days_left):
+
+    return f'Act as an expert academic coach and create a hyper-customized daily study plan based on the content and timeline provided below. Format the output with clear daily milestones, active recall checkpoints, and built-in review sessions to ensure mastery before the deadline. Days Remaining: {days_left} Content to Cover:{pdf_text}'
+
+def get_study_plan(prompt):
+    
+    client = genai.Client()
+
+    response = client.models.generate_content(
+        model = "gemini-3.5-flash",
+        contents = prompt
+    )
+
+    return response.text
+
+def main():
+    path = input('Enter the pdf file path: ')
+    date_string = input('Enter the exam date("YYYY-MM-DD"): ')
+
+    pdf_text = read_pdf(path)
+    days_left = days_until(date_string)
+    prompt = build_prompt(pdf_text,days_left)
+
+    print(f'Your study plan:\n{get_study_plan(prompt)}')
+
+if __name__ == "__main__":
+    main()
