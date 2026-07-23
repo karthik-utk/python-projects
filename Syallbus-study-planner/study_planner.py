@@ -2,14 +2,17 @@ import fitz
 from datetime import datetime
 from google import genai
 
-def read_pdf(path):
+def read_pdf(file):
 
     try:
-        doc = fitz.open(path)
+        if isinstance(file, str):
+            doc = fitz.open(file)
+        else:
+            doc = fitz.open(stream=file.read(), filetype="pdf")
+
         pdf_content = ''
     except Exception as e:
-        print(f'Error ocurred: {e}')
-        exit()
+          raise ValueError(f'Error opening PDF: {e}')
 
     for page_num in range(len(doc)):
         page = doc[page_num]
@@ -20,15 +23,18 @@ def read_pdf(path):
     doc.close()
     
     if len(pdf_content.strip()) < 50:
-        print('This PDF appears to have no extractable text (it may be a scanned/image-based PDF). Try a text-based PDF instead.')
-        exit()
+        raise ValueError('This PDF appears to have no extractable text (it may be a scanned/image-based PDF)')
     
     return pdf_content
 
 def days_until(date_string):
-    exam_date = datetime.strptime(date_string, "%Y-%m-%d")
-    date_today = datetime.now()
 
+    try:
+        exam_date = datetime.strptime(date_string, "%Y-%m-%d")
+    except ValueError:
+        raise ValueError('Please enter the date in YYYY-MM-DD format.')
+
+    date_today = datetime.now()
     days_left = exam_date - date_today
 
     return days_left.days
@@ -48,19 +54,22 @@ def get_study_plan(prompt):
 
         return response.text
     except Exception as e:
-        print(f'Error occured : {e}')
-        exit()
+        raise RuntimeError(f'Error generating study plan: {e}')
 
 def main():
     path = input('Enter the pdf file path: ')
     date_string = input('Enter the exam date("YYYY-MM-DD"): ')
 
-    pdf_text = read_pdf(path)
-    days_left = days_until(date_string)
-    prompt = build_prompt(pdf_text,days_left)
+    try:
+        pdf_text = read_pdf(path)
+        days_left = days_until(date_string)
+        prompt = build_prompt(pdf_text, days_left)
 
-    print(f'Your study plan:\n{get_study_plan(prompt)}')
-    
+        print(f'Your study plan:\n{get_study_plan(prompt)}')
+
+    except (ValueError, RuntimeError) as e:
+        print(e)
+        exit()
 
 if __name__ == "__main__":
     main()
