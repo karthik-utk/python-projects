@@ -1,5 +1,7 @@
 # Syllabus Study Planner
 
+🔗 **[Try it live](https://syllabus-study-planner.streamlit.app/)**
+
 A study planner that reads your syllabus PDF, combines it with your exam date, and uses the Gemini API to generate a structured, day-by-day study plan.
 
 ## Features
@@ -14,7 +16,7 @@ A study planner that reads your syllabus PDF, combines it with your exam date, a
 ## Setup
 
 1. Clone the repo
-2. Install dependencies: `pip install pymupdf google-genai`
+2. 2. Install dependencies: `pip install -r requirements.txt`
 3. Get your own API key from Google AI Studio
 4. Set it as an environment variable:
    - Mac/Linux: `export GEMINI_API_KEY="your_key_here"`
@@ -24,12 +26,13 @@ A study planner that reads your syllabus PDF, combines it with your exam date, a
 
 Requires Python 3.10 or newer.
 
+**CLI version:**
 1. First get your API key and set it as an environment variable.
-2. Run the following in terminal:
+2. Run: `python study_planner.py`
 
-```
-python <file-name>.py
-```
+**Web version (Streamlit):**
+1. First get your API key and set it as an environment variable.
+2. Run: `streamlit run app.py`
 
 ## How It Works
 
